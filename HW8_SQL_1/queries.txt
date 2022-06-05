@@ -1,0 +1,102 @@
+1)
+SELECT CustomerName, Country, Address FROM Customers
+where Country = 'Germany' or Country = 'France' or City = 'Madrid';
+
+2)
+SELECT Country, count(distinct CustomerName) 
+FROM Customers
+group by Country
+order by 2 desc limit 3;
+
+3)
+select s.ShipperName, o.OrderDate
+from Orders o
+join Shippers s on s.ShipperId = o.ShipperId
+order by o.OrderDate
+limit 1 offset 9
+
+4)
+select t.OrderId, p.ProductName, p.Price from
+(
+SELECT OrderId, sum(Quantity * Price) as Amount
+FROM OrderDetails o 
+join Products p on p.ProductId = o.ProductId
+join Categories c on c.CategoryId = p.CategoryId
+group by OrderId
+order by 2 desc 
+limit 1
+) t
+join OrderDetails od on t.OrderId = od.OrderId
+join Products p on p.ProductId = od.ProductId
+
+5)
+select OrderId, t.Productname, od.Quantity from OrderDetails od
+join
+(
+SELECT p.ProductId, p.Productname, sum(Quantity) as cnt
+FROM OrderDetails o 
+join Products p on p.ProductId = o.ProductId
+join Categories c on c.CategoryId = p.CategoryId
+group by p.ProductId
+order by 2 desc 
+limit 1
+) t
+on t.ProductId = od.ProductId
+        
+
+6)
+select s.SupplierName, s.Country, s.ContactName, s.Phone
+from
+(
+select p.SupplierId, count (distinct od.OrderId) as cnt
+from OrderDetails od
+join Products p on od.ProductId = p.ProductId
+group by p.SupplierId 
+order by 2 desc
+limit 5
+) t 
+join Suppliers s on t.SupplierId = s.SupplierId
+
+
+7)
+select s.Country, ca.CategoryName, sum(Quantity*Price) as Amount
+from Customers c
+join Orders o on c.CustomerId = o.CustomerId
+join OrderDetails od on o.OrderId = od.OrderId
+join Products p on od.ProductId = p.ProductId
+join Categories ca on ca.CategoryId = p.CategoryId
+join Suppliers s on p.SupplierId = s.SupplierId
+where c.Country = 'Brazil'      
+group by 1,2
+order by 3 desc
+limit 1
+
+8)
+select max(Amount) - min(Amount)
+from
+(
+select o.OrderId, sum(Quantity*Price) as Amount
+from Customers c
+join Orders o on c.CustomerId = o.CustomerId
+join OrderDetails od on o.OrderId = od.OrderId
+join Products p on od.ProductId = p.ProductId
+where c.Country = 'USA'      
+group by o.OrderId
+) t
+
+
+9)
+select count(distinct OrderId) as cnt, LastName || ' ' || FirstName as Name 
+from Employees e
+join Orders o on e.EmployeeId = o.EmployeeId
+group by 2
+order by BirthDate desc
+limit 3
+
+10)
+select p.ProductName, sum(Quantity) as cnt
+from Products p
+join OrderDetails od on od.productId = p.ProductId
+where lower(ProductName) like '%crab%'
+group by 1
+
